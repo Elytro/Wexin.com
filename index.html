@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微信账号管理</title>
+<link href="https://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://apps.bdimg.com/libs/fontawesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+<style>
+  body { background: #fff; font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft YaHei", sans-serif; }
+  .navbar { background: linear-gradient(135deg, #e74c3c, #fff); border: none; border-radius: 0; margin-bottom: 0; box-shadow: 0 2px 8px rgba(231,76,60,0.15); }
+  .navbar-brand { color: #fff !important; font-weight: 600; letter-spacing: 1px; }
+  .navbar-brand i { margin-right: 6px; }
+  .header-strip { height: 4px; background: linear-gradient(90deg, #c0392b, #e74c3c, #f1948a, #fff); }
+  .container-wrap { padding: 25px 0; }
+  .toolbar { margin-bottom: 18px; }
+  .btn-add { background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: #fff; font-weight: 600; transition: all 0.25s; box-shadow: 0 2px 6px rgba(231,76,60,0.25); }
+  .btn-add:hover { background: linear-gradient(135deg, #c0392b, #a93226); color: #fff; box-shadow: 0 4px 12px rgba(231,76,60,0.35); transform: translateY(-1px); }
+  .btn-edit { color: #e74c3c; border: 1px solid #e74c3c; background: #fff; transition: all 0.2s; }
+  .btn-edit:hover { background: #e74c3c; color: #fff; }
+  .btn-del { color: #888; border: 1px solid #ddd; background: #fff; transition: all 0.2s; }
+  .btn-del:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+  .panel { border: none; border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+  .panel-heading { background: #fff !important; border-bottom: 1px solid #f0f0f0; padding: 14px 18px; border-radius: 6px 6px 0 0; }
+  .panel-title { font-size: 15px; font-weight: 600; color: #333; }
+  .panel-title i { color: #e74c3c; margin-right: 6px; }
+  .table { margin-bottom: 0; }
+  .table>thead>tr>th { background: #fafafa; border-bottom: 2px solid #f1948a; color: #555; font-weight: 600; font-size: 13px; vertical-align: middle; white-space: nowrap; }
+  .table>tbody>tr>td { vertical-align: middle; font-size: 13px; color: #444; border-bottom-color: #f5f5f5; }
+  .table>tbody>tr:hover { background-color: #fff5f5; }
+  .badge-status { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 10px; }
+  .status-1 .badge-status { background: #27ae60; }
+  .status-2 .badge-status { background: #f39c12; }
+  .status-3 .badge-status { background: #95a5a6; }
+  .device-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+  .device-未注册 { background: #f0f0f0; color: #999; }
+  .device-子夜黑 { background: #2c3e50; color: #fff; }
+  .device-好运红 { background: #e74c3c; color: #fff; }
+  .device-宝石蓝 { background: #2980b9; color: #fff; }
+  .device-暮光紫 { background: #8e44ad; color: #fff; }
+  .td-actions { white-space: nowrap; }
+  .td-actions .btn { padding: 3px 10px; font-size: 12px; margin: 0 2px; }
+  .copy-btn { color: #888; cursor: pointer; margin-left: 4px; font-size: 11px; }
+  .copy-btn:hover { color: #e74c3c; }
+  .loading-mask { text-align: center; padding: 40px; color: #aaa; }
+  .empty-tip { text-align: center; padding: 40px; color: #bbb; }
+  .empty-tip i { font-size: 40px; display: block; margin-bottom: 10px; color: #ddd; }
+  .footer-bar { text-align: center; padding: 15px; color: #bbb; font-size: 12px; border-top: 1px solid #f5f5f5; margin-top: 20px; }
+  .footer-bar span { color: #e74c3c; }
+  .count-badge { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="index.html"><i class="fa fa-weixin"></i>微信账号管理</a>
+    </div>
+  </div>
+</nav>
+<div class="header-strip"></div>
+
+<div class="container container-wrap">
+  <div class="toolbar clearfix">
+    <a href="emule.html" class="btn btn-add pull-left"><i class="fa fa-plus"></i> 新增账号</a>
+    <button class="btn btn-default pull-right" onclick="loadData()" title="刷新"><i class="fa fa-refresh"></i></button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-heading">
+      <h3 class="panel-title"><i class="fa fa-list-alt"></i> 账号列表 <span class="count-badge" id="totalCount">0</span></h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover" id="dataTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>微信昵称</th>
+            <th>账号状态</th>
+            <th>安全邮箱</th>
+            <th>登录设备</th>
+            <th>微信账号</th>
+            <th>绑定手机</th>
+            <th>微信维码</th>
+            <th>个人账户</th>
+            <th>经营账户</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="loading-mask" id="loadingTip"><i class="fa fa-spinner fa-spin"></i> 加载中...</div>
+    <div class="empty-tip" id="emptyTip" style="display:none;"><i class="fa fa-inbox"></i>暂无数据</div>
+  </div>
+
+  <div class="footer-bar">Powered by <span>EdgeOne Pages</span> &amp; MySQL</div>
+</div>
+
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script>
+var API_BASE = '/api/records';
+
+function loadData() {
+  $('#loadingTip').show(); $('#dataTable').hide(); $('#emptyTip').hide();
+  $.getJSON(API_BASE, function(res) {
+    $('#loadingTip').hide();
+    var rows = res.data || res || [];
+    if (!rows.length) { $('#emptyTip').show(); $('#totalCount').text('0'); return; }
+    $('#dataTable').show();
+    $('#totalCount').text(rows.length);
+    var html = '';
+    var devices = ['未注册','子夜黑','好运红','宝石蓝','暮光紫'];
+    var statusTexts = {1:'正常', 2:'冻结', 3:'待激活', 4:'封禁', 5:'注销'};
+    rows.forEach(function(r) {
+      var devClass = 'device-' + (r.ltd || '未注册');
+      var stText = statusTexts[r.xhr] || ('状态'+r.xhr);
+      var stClass = 'status-' + (r.xhr || 3);
+      html += '<tr class="'+stClass+'">'
+        + '<td>' + r.id + '</td>'
+        + '<td>' + esc(r.nic) + '</td>'
+        + '<td><span class="badge badge-status">' + stText + '</span></td>'
+        + '<td>' + esc(r.say) + '</td>'
+        + '<td><span class="device-badge ' + devClass + '">' + (r.ltd || '未注册') + '</span></td>'
+        + '<td>' + esc(r.wix) + '</td>'
+        + '<td>' + esc(r.sjk) + '</td>'
+        + '<td>' + shortText(r.qrc, 30) + '</td>'
+        + '<td>' + shortText(r.sfp, 30) + '</td>'
+        + '<td>' + shortText(r.upy, 30) + '</td>'
+        + '<td class="td-actions">'
+        + '<a href="editor.html?id=' + r.id + '" class="btn btn-edit btn-xs"><i class="fa fa-pencil"></i></a> '
+        + '<button class="btn btn-del btn-xs" onclick="delRow(' + r.id + ')"><i class="fa fa-trash"></i></button>'
+        + '</td></tr>';
+    });
+    $('#tableBody').html(html);
+  }).fail(function() {
+    $('#loadingTip').hide(); $('#emptyTip').show().find('i').attr('class','fa fa-exclamation-circle').next().text('加载失败，请刷新重试');
+  });
+}
+
+function delRow(id) {
+  if (!confirm('确定要删除该记录吗？')) return;
+  $.ajax({ url: API_BASE + '/' + id, type: 'DELETE' })
+    .done(function() { loadData(); })
+    .fail(function() { alert('删除失败'); });
+}
+
+function esc(s) { return $('<span>').text(s || '').html(); }
+function shortText(t, n) {
+  if (!t) return '';
+  return t.length > n ? esc(t.substring(0,n)) + '...' : esc(t);
+}
+
+$(function() { loadData(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编辑账号 - 微信账号管理</title>
+<link href="https://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://apps.bdimg.com/libs/fontawesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+<style>
+  body { background: #fff; font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft YaHei", sans-serif; }
+  .navbar { background: linear-gradient(135deg, #e74c3c, #fff); border: none; border-radius: 0; margin-bottom: 0; box-shadow: 0 2px 8px rgba(231,76,60,0.15); }
+  .navbar-brand { color: #fff !important; font-weight: 600; letter-spacing: 1px; }
+  .navbar-brand i { margin-right: 6px; }
+  .header-strip { height: 4px; background: linear-gradient(90deg, #c0392b, #e74c3c, #f1948a, #fff); }
+  .container-wrap { padding: 25px 0; }
+  .panel { border: none; border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); max-width: 680px; margin: 0 auto; }
+  .panel-heading { background: linear-gradient(135deg, #fff, #fff5f5) !important; border-bottom: 1px solid #f0f0f0; padding: 14px 18px; border-radius: 6px 6px 0 0; }
+  .panel-title { font-size: 15px; font-weight: 600; color: #333; }
+  .panel-title i { color: #e74c3c; margin-right: 6px; }
+  .panel-body { padding: 25px 30px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { font-weight: 600; color: #555; font-size: 13px; margin-bottom: 5px; }
+  .form-group label i { color: #e74c3c; width: 16px; text-align: center; margin-right: 4px; }
+  .form-control { border-radius: 4px; border: 1px solid #e0e0e0; box-shadow: none; transition: all 0.2s; font-size: 13px; }
+  .form-control:focus { border-color: #e74c3c; box-shadow: 0 0 0 2px rgba(231,76,60,0.1); }
+  select.form-control { -webkit-appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23999' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right: 28px; }
+  .btn-back { color: #888; border: 1px solid #ddd; background: #fff; transition: all 0.2s; }
+  .btn-back:hover { color: #e74c3c; border-color: #e74c3c; }
+  .btn-submit { background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: #fff; font-weight: 600; padding: 8px 28px; transition: all 0.25s; box-shadow: 0 2px 6px rgba(231,76,60,0.25); }
+  .btn-submit:hover { background: linear-gradient(135deg, #c0392b, #a93226); color: #fff; box-shadow: 0 4px 12px rgba(231,76,60,0.35); transform: translateY(-1px); }
+  .footer-bar { text-align: center; padding: 15px; color: #bbb; font-size: 12px; border-top: 1px solid #f5f5f5; margin-top: 20px; }
+  .footer-bar span { color: #e74c3c; }
+  .alert-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px; }
+  .loading-mask { text-align: center; padding: 60px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="index.html"><i class="fa fa-weixin"></i>微信账号管理</a>
+    </div>
+  </div>
+</nav>
+<div class="header-strip"></div>
+
+<div class="container container-wrap">
+  <div class="panel" id="editPanel">
+    <div class="panel-heading">
+      <h3 class="panel-title"><i class="fa fa-pencil-square"></i> 编辑账号 <small style="color:#aaa;">#<span id="editId">-</span></small></h3>
+    </div>
+    <div class="loading-mask" id="loadingTip"><i class="fa fa-spinner fa-spin"></i> 加载中...</div>
+    <div class="panel-body" id="formBody" style="display:none;">
+      <form id="editForm">
+        <input type="hidden" name="id" id="hidId">
+        <div class="form-group">
+          <label><i class="fa fa-user"></i> 微信昵称</label>
+          <input type="text" class="form-control" name="nic" id="nic" maxlength="9" placeholder="请输入微信昵称" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-flag"></i> 账号状态</label>
+          <select class="form-control" name="xhr" id="xhr">
+            <option value="1">正常</option>
+            <option value="2">冻结</option>
+            <option value="3">待激活</option>
+            <option value="4">封禁</option>
+            <option value="5">注销</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-envelope"></i> 安全邮箱</label>
+          <input type="email" class="form-control" name="say" id="say" maxlength="32" placeholder="请输入安全邮箱">
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-mobile"></i> 登录设备</label>
+          <select class="form-control" name="ltd" id="ltd">
+            <option value="未注册">未注册</option>
+            <option value="子夜黑">子夜黑</option>
+            <option value="好运红">好运红</option>
+            <option value="宝石蓝">宝石蓝</option>
+            <option value="暮光紫">暮光紫</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-id-card"></i> 微信账号</label>
+          <input type="text" class="form-control" name="wix" id="wix" maxlength="32" placeholder="请输入微信账号">
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-phone"></i> 绑定手机</label>
+          <input type="text" class="form-control" name="sjk" id="sjk" maxlength="11" placeholder="请输入绑定手机号">
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-qrcode"></i> 微信维码</label>
+          <input type="text" class="form-control" name="qrc" id="qrc" maxlength="100" placeholder="请输入微信维码链接">
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-credit-card"></i> 个人账户</label>
+          <input type="text" class="form-control" name="sfp" id="sfp" maxlength="100" placeholder="请输入个人账户信息">
+        </div>
+        <div class="form-group">
+          <label><i class="fa fa-briefcase"></i> 经营账户</label>
+          <input type="text" class="form-control" name="upy" id="upy" maxlength="100" placeholder="请输入经营账户信息">
+        </div>
+        <div class="form-group" style="margin-top:22px;">
+          <button type="submit" class="btn btn-submit"><i class="fa fa-check"></i> 保存修改</button>
+          <a href="index.html" class="btn btn-back"><i class="fa fa-arrow-left"></i> 返回列表</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bar">Powered by <span>EdgeOne Pages</span> &amp; MySQL</div>
+</div>
+
+<div class="alert-wrap" id="alertBox" style="display:none;"></div>
+
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script>
+var API_BASE = '/api/records';
+
+function getParam(name) {
+  var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function showAlert(msg, type) {
+  var cls = type === 'success' ? 'alert-success' : 'alert-danger';
+  var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+  var $box = $('#alertBox');
+  $box.html('<div class="alert ' + cls + ' alert-dismissible" style="margin:0;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.1);">'
+    + '<i class="fa ' + icon + '"></i> ' + msg
+    + '<button class="close" data-dismiss="alert">&times;</button></div>').show();
+  setTimeout(function(){ $box.fadeOut(); }, 3500);
+}
+
+var id = getParam('id');
+if (!id) {
+  showAlert('缺少记录 ID，即将返回列表...', 'danger');
+  setTimeout(function(){ location.href = 'index.html'; }, 1500);
+} else {
+  $('#editId').text(id);
+  $.getJSON(API_BASE + '/' + id, function(res) {
+    var r = res.data || res;
+    if (!r) { showAlert('未找到该记录', 'danger'); return; }
+    $('#hidId').val(r.id);
+    $('#nic').val(r.nic);
+    $('#xhr').val(r.xhr);
+    $('#say').val(r.say);
+    $('#ltd').val(r.ltd);
+    $('#wix').val(r.wix);
+    $('#sjk').val(r.sjk);
+    $('#qrc').val(r.qrc);
+    $('#sfp').val(r.sfp);
+    $('#upy').val(r.upy);
+    $('#loadingTip').hide();
+    $('#formBody').show();
+  }).fail(function() {
+    $('#loadingTip').html('<i class="fa fa-exclamation-circle"></i> 加载失败').css('color','#e74c3c');
+  });
+}
+
+$('#editForm').on('submit', function(e) {
+  e.preventDefault();
+  var data = {};
+  $(this).serializeArray().forEach(function(f) { data[f.name] = f.value; });
+  var uid = data.id; delete data.id;
+  $.ajax({
+    url: API_BASE + '/' + uid,
+    type: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify(data)
+  }).done(function() {
+    showAlert('修改成功！即将返回列表...', 'success');
+    setTimeout(function(){ location.href = 'index.html'; }, 1200);
+  }).fail(function(jqXHR) {
+    var msg = '修改失败';
+    try { var r = JSON.parse(jqXHR.responseText); msg = r.error || msg; } catch(e) {}
+    showAlert(msg, 'danger');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "wexin-crud",
+  "version": "1.0.0",
+  "description": "微信账号管理 CRUD - EdgeOne Pages + MySQL",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Use EdgeOne Pages CLI for local dev'"
+  },
+  "dependencies": {
+    "mysql2": "^3.9.0"
+  }
+}
