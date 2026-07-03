@@ -175,7 +175,13 @@ $('#editForm').on('submit', function(e) {
     setTimeout(function(){ location.href = 'index.html'; }, 1200);
   }).fail(function(jqXHR) {
     var msg = '修改失败';
-    try { var r = JSON.parse(jqXHR.responseText); msg = r.error || msg; } catch(e) {}
+    try {
+      var r = JSON.parse(jqXHR.responseText);
+      if (r.error) msg = r.error;
+    } catch(e) {
+      if (jqXHR.status === 0) msg = '无法连接API服务器，请检查EdgeOne Pages函数是否已部署';
+      else msg = 'HTTP ' + jqXHR.status + ' 请求失败';
+    }
     showAlert(msg, 'danger');
   });
 });
