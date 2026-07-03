@@ -20,6 +20,8 @@
   .btn-edit:hover { background: #e74c3c; color: #fff; }
   .btn-del { color: #888; border: 1px solid #ddd; background: #fff; transition: all 0.2s; }
   .btn-del:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+  .btn-health { color: #999; border: 1px solid #eee; background: #fff; font-size: 12px; padding: 4px 10px; }
+  .btn-health:hover { color: #e74c3c; border-color: #e74c3c; }
   .panel { border: none; border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
   .panel-heading { background: #fff !important; border-bottom: 1px solid #f0f0f0; padding: 14px 18px; border-radius: 6px 6px 0 0; }
   .panel-title { font-size: 15px; font-weight: 600; color: #333; }
@@ -29,9 +31,11 @@
   .table>tbody>tr>td { vertical-align: middle; font-size: 13px; color: #444; border-bottom-color: #f5f5f5; }
   .table>tbody>tr:hover { background-color: #fff5f5; }
   .badge-status { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 10px; }
-  .status-1 .badge-status { background: #27ae60; }
-  .status-2 .badge-status { background: #f39c12; }
-  .status-3 .badge-status { background: #95a5a6; }
+  .status-1 .badge-status { background: #27ae60; color: #fff; }
+  .status-2 .badge-status { background: #f39c12; color: #fff; }
+  .status-3 .badge-status { background: #95a5a6; color: #fff; }
+  .status-4 .badge-status { background: #e74c3c; color: #fff; }
+  .status-5 .badge-status { background: #7f8c8d; color: #fff; }
   .device-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
   .device-未注册 { background: #f0f0f0; color: #999; }
   .device-子夜黑 { background: #2c3e50; color: #fff; }
@@ -40,14 +44,18 @@
   .device-暮光紫 { background: #8e44ad; color: #fff; }
   .td-actions { white-space: nowrap; }
   .td-actions .btn { padding: 3px 10px; font-size: 12px; margin: 0 2px; }
-  .copy-btn { color: #888; cursor: pointer; margin-left: 4px; font-size: 11px; }
-  .copy-btn:hover { color: #e74c3c; }
   .loading-mask { text-align: center; padding: 40px; color: #aaa; }
-  .empty-tip { text-align: center; padding: 40px; color: #bbb; }
-  .empty-tip i { font-size: 40px; display: block; margin-bottom: 10px; color: #ddd; }
+  .empty-tip { text-align: center; padding: 40px; color: #bbb; display: none; }
+  .empty-tip i { font-size: 40px; display: block; margin-bottom: 10px; }
+  .error-tip { text-align: center; padding: 30px 20px; color: #e74c3c; display: none; background: #fff5f5; border-radius: 6px; margin: 10px; }
+  .error-tip i { font-size: 36px; display: block; margin-bottom: 10px; }
+  .error-tip .err-msg { font-size: 13px; color: #888; word-break: break-all; max-width: 600px; margin: 8px auto 0; }
   .footer-bar { text-align: center; padding: 15px; color: #bbb; font-size: 12px; border-top: 1px solid #f5f5f5; margin-top: 20px; }
   .footer-bar span { color: #e74c3c; }
   .count-badge { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+  #healthStatus { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  #healthStatus.ok { background: #27ae60; }
+  #healthStatus.err { background: #e74c3c; }
 </style>
 </head>
 <body>
@@ -64,13 +72,24 @@
 <div class="container container-wrap">
   <div class="toolbar clearfix">
     <a href="emule.html" class="btn btn-add pull-left"><i class="fa fa-plus"></i> 新增账号</a>
-    <button class="btn btn-default pull-right" onclick="loadData()" title="刷新"><i class="fa fa-refresh"></i></button>
+    <span class="pull-right">
+      <button class="btn btn-health" onclick="checkHealth()" title="诊断"><i class="fa fa-heartbeat"></i> 诊断</button>
+      <button class="btn btn-default" onclick="loadData()" title="刷新"><i class="fa fa-refresh"></i></button>
+      <span id="healthStatus"></span>
+    </span>
   </div>
 
   <div class="panel">
     <div class="panel-heading">
       <h3 class="panel-title"><i class="fa fa-list-alt"></i> 账号列表 <span class="count-badge" id="totalCount">0</span></h3>
     </div>
+
+    <div class="error-tip" id="errorTip">
+      <i class="fa fa-exclamation-circle"></i>
+      <div id="errorText">加载失败</div>
+      <div class="err-msg" id="errorDetail"></div>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover" id="dataTable" style="display:none;">
         <thead>
@@ -91,8 +110,9 @@
         <tbody id="tableBody"></tbody>
       </table>
     </div>
+
     <div class="loading-mask" id="loadingTip"><i class="fa fa-spinner fa-spin"></i> 加载中...</div>
-    <div class="empty-tip" id="emptyTip" style="display:none;"><i class="fa fa-inbox"></i>暂无数据</div>
+    <div class="empty-tip" id="emptyTip"><i class="fa fa-inbox"></i>暂无数据，点击右上角「新增账号」添加</div>
   </div>
 
   <div class="footer-bar">Powered by <span>EdgeOne Pages</span> &amp; MySQL</div>
@@ -104,21 +124,23 @@
 var API_BASE = '/api/records';
 
 function loadData() {
-  $('#loadingTip').show(); $('#dataTable').hide(); $('#emptyTip').hide();
+  $('#loadingTip').show(); $('#dataTable').hide(); $('#emptyTip').hide(); $('#errorTip').hide();
   $.getJSON(API_BASE, function(res) {
     $('#loadingTip').hide();
     var rows = res.data || res || [];
-    if (!rows.length) { $('#emptyTip').show(); $('#totalCount').text('0'); return; }
+    if (!rows.length) {
+      $('#emptyTip').show();
+      $('#totalCount').text('0');
+      return;
+    }
     $('#dataTable').show();
     $('#totalCount').text(rows.length);
-    var html = '';
-    var devices = ['未注册','子夜黑','好运红','宝石蓝','暮光紫'];
     var statusTexts = {1:'正常', 2:'冻结', 3:'待激活', 4:'封禁', 5:'注销'};
-    rows.forEach(function(r) {
+    var html = rows.map(function(r) {
       var devClass = 'device-' + (r.ltd || '未注册');
       var stText = statusTexts[r.xhr] || ('状态'+r.xhr);
       var stClass = 'status-' + (r.xhr || 3);
-      html += '<tr class="'+stClass+'">'
+      return '<tr class="'+stClass+'">'
         + '<td>' + r.id + '</td>'
         + '<td>' + esc(r.nic) + '</td>'
         + '<td><span class="badge badge-status">' + stText + '</span></td>'
@@ -133,10 +155,26 @@ function loadData() {
         + '<a href="editor.html?id=' + r.id + '" class="btn btn-edit btn-xs"><i class="fa fa-pencil"></i></a> '
         + '<button class="btn btn-del btn-xs" onclick="delRow(' + r.id + ')"><i class="fa fa-trash"></i></button>'
         + '</td></tr>';
-    });
+    }).join('');
     $('#tableBody').html(html);
-  }).fail(function() {
-    $('#loadingTip').hide(); $('#emptyTip').show().find('i').attr('class','fa fa-exclamation-circle').next().text('加载失败，请刷新重试');
+  }).fail(function(jqXHR, textStatus, errorThrown) {
+    $('#loadingTip').hide();
+    var errMsg = '服务器请求失败';
+    var errDetail = '';
+    try {
+      var r = JSON.parse(jqXHR.responseText);
+      if (r.error) { errMsg = r.error; errDetail = r.code ? '错误码: ' + r.code : ''; }
+    } catch(e) {
+      errDetail = 'HTTP ' + jqXHR.status + ': ' + (errorThrown || textStatus || '无法连接API服务器');
+      if (jqXHR.status === 0) {
+        errDetail = '无法连接到API服务器，请检查EdgeOne Pages函数是否已部署';
+      }
+    }
+    $('#errorText').text(errMsg);
+    $('#errorDetail').text(errDetail);
+    $('#errorTip').show();
+    $('#totalCount').text('0');
+    $('#healthStatus').removeClass('ok').addClass('err');
   });
 }
 
@@ -144,7 +182,11 @@ function delRow(id) {
   if (!confirm('确定要删除该记录吗？')) return;
   $.ajax({ url: API_BASE + '/' + id, type: 'DELETE' })
     .done(function() { loadData(); })
-    .fail(function() { alert('删除失败'); });
+    .fail(function(jqXHR) {
+      var msg = '删除失败';
+      try { var r = JSON.parse(jqXHR.responseText); msg = r.error || msg; } catch(e) {}
+      alert(msg);
+    });
 }
 
 function esc(s) { return $('<span>').text(s || '').html(); }
@@ -153,7 +195,46 @@ function shortText(t, n) {
   return t.length > n ? esc(t.substring(0,n)) + '...' : esc(t);
 }
 
-$(function() { loadData(); });
+function checkHealth() {
+  var $btn = $('.btn-health');
+  var orig = $btn.html();
+  $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop('disabled', true);
+  $.getJSON('/api/health')
+    .done(function(res) {
+      if (res.status === 'ok') {
+        $('#healthStatus').removeClass('err').addClass('ok');
+        alert('✅ 函数运行正常\n数据库: ' + res.db.database + '@' + res.db.host);
+      } else {
+        $('#healthStatus').removeClass('ok').addClass('err');
+        alert('❌ ' + res.message);
+      }
+    })
+    .fail(function(jqXHR) {
+      $('#healthStatus').removeClass('ok').addClass('err');
+      try {
+        var r = JSON.parse(jqXHR.responseText);
+        alert('❌ 诊断失败: ' + (r.message || r.error || '未知错误'));
+      } catch(e) {
+        alert('❌ 无法连接API (HTTP ' + jqXHR.status + ')\n请确认EdgeOne Pages函数已正确部署');
+      }
+    })
+    .always(function() { $btn.html(orig).prop('disabled', false); });
+}
+
+$(function() {
+  loadData();
+  // Auto health check on load
+  setTimeout(function() {
+    $.getJSON('/api/health')
+      .done(function(res) {
+        $('#healthStatus').attr('title', res.status === 'ok' ? 'API正常' : res.message)
+          .addClass(res.status === 'ok' ? 'ok' : 'err');
+      })
+      .fail(function() {
+        $('#healthStatus').addClass('err').attr('title', 'API不可达');
+      });
+  }, 500);
+});
 </script>
 </body>
 </html>
